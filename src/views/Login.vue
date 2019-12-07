@@ -73,27 +73,27 @@ export default {
             pwd: this.ruleForm2.password
           };
           console.log(loginParams);
-          requestLogin(loginParams).then(data => {
+          requestLogin(loginParams).then(res => {
             this.logining = false;
-            let { status, datas } = data;
+            let { status, data, message } = res;
             if (status == "false") {
               this.$message({
-                message: datas.message,
+                message: message,
                 type: "error"
               });
-            } else if (datas.status == "false") {
+            } else if (status == "false") {
               this.$message({
-                message: datas.message,
+                message: message,
                 type: "error"
               });
             } else {
               sessionStorage.setItem(
                 "username",
-                JSON.stringify(datas.data.name)
+                JSON.stringify(data.name)
               );
               sessionStorage.setItem(
                 "merchantsId",
-                JSON.stringify(datas.data.merchantsId)
+                JSON.stringify(data.merchantsId)
               );
               this.$router.push({ path: "/MerchantJoin" });
             }
