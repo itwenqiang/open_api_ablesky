@@ -20,11 +20,11 @@
     </el-col>
 
     <!--列表-->
-    <el-table :dataList="datalist" highlight-current-row style="width: 100%;">
-      <el-table-column label="序号" width="100" sortable></el-table-column>
+    <el-table :data="datalist" highlight-current-row style="width: 100%;">
+      <el-table-column label="序号" width="100" prop="id" sortable></el-table-column>
 			<el-table-column prop="name"  label="店铺名称" >
       </el-table-column>
-      <el-table-column prop="status"  label="审核状态" ></el-table-column>
+      <el-table-column prop="shopStatus"  label="审核状态" ></el-table-column>
       <el-table-column label="操作" >
         <template solt-scope="scope">
           <el-button size="small">查看</el-button>
@@ -50,12 +50,11 @@ export default {
     handleSerchShop(){
       let str=sessionStorage.getItem("merchantsId").match(/\d+/g).join();
       let params={
-        status:this.select,
+        status:this.select || 2,
         merchants_id:str
       }
       checkShopState(params).then(data=>{
-        this.datalist.push(data)
-        console.log(data)
+        this.datalist = [...this.datalist, ...data.data];
       })
     },
     addBussi: function() {
