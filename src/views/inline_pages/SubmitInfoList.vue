@@ -54,7 +54,7 @@ export default {
         merchants_id:str
       }
       checkShopState(params).then(data=>{
-        this.datalist = [...this.datalist, ...data.data];
+        this.datalist = [...data.data];
       })
     },
     addBussi: function() {
