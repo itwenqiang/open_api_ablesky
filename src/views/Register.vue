@@ -78,24 +78,22 @@ export default {
             pwd: this.ruleForm2.checkPass,
             repeatPwd: this.ruleForm2.repeatPass
           };
-          requestRegister(Params).then(data => {
+          requestRegister(Params).then(res => {
             this.logining = false;
-            let { status, datas } = data;
-            console.log(data);
-            console.log(status);
+            let { status, data, message } = res;
             if (status == "false") {
               this.$message({
-                message: datas.message,
+                message: message,
                 type: "error"
               });
             } else if (status == "success") {
               this.$message({
-                message: datas.message
+                message: message
               });
               //this.$router.push({path:"/login"})
             } else {
               this.$message({
-                message: datas.message
+                message: message
               });
             }
           });
