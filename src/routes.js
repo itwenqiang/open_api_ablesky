@@ -18,7 +18,6 @@ import AddPartsNew from './views/inline_pages/AddParts_new.vue'
 //新增物料列表
 import AddPartsList from './views/inline_pages/AddPartsList.vue'
 
-
 import AddParts from './views/inline_pages/AddParts.vue'
 
 let routes = [

@@ -1,4 +1,4 @@
-let categoryjson = [
+ export let categoryjson = [
     {
         "label": "留学",
         "children": [
