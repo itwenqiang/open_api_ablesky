@@ -38,11 +38,12 @@
 
 <script>
 import {checkShopState} from "../../api/api.js";
+import shopStatus from '../../common/js/shopStatus.js'
 
 export default {
   data() {
     return {
-      select: "",
+      select: "0",
       datalist:[]
     };
   },
@@ -50,11 +51,15 @@ export default {
     handleSerchShop(){
       let str=sessionStorage.getItem("merchantsId").match(/\d+/g).join();
       let params={
-        status:this.select || 2,
+        status:this.select,
         merchants_id:str
       }
       checkShopState(params).then(data=>{
-        this.datalist = [...data.data];
+        let shopList = data.data.map(item => {
+          item.shopStatus = shopStatus[item.shopStatus];
+          return item;
+        })
+        this.datalist = [...shopList];
       })
     },
     addBussi: function() {
