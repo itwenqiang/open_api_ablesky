@@ -2480,3 +2480,5 @@ let categoryjson = [
         "value": "学前教育"
     }
 ]
+
+export default categoryjson

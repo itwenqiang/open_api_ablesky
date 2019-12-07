@@ -12,16 +12,16 @@
     <el-form-item class="must_write" label="服务城市">
       <el-cascader
         :props="propscity"
-        :options="options2"
-        v-model="selectedOptions2"
-        @change="handleChange2"
+        :options="optionsServiceCity"
+        v-model="selectedOptionsServiceCity"
+        @change="handleChangeServiceCity"
         clearable
         collapse-tags
       ></el-cascader>
     </el-form-item>
 
     <el-form-item class="must_write" label=" 所在城市">
-      <el-cascader :options="options3" v-model="selectedOptions3" @change="handleChange3"></el-cascader>
+      <el-cascader :options="optionsPosCity" v-model="selectedOptionsPosCity" @change="handleChangePosCity"></el-cascader>
     </el-form-item>
 
     <el-form-item class="must_write" label="详细地址:">
@@ -50,12 +50,12 @@
         <i class="el-icon-plus"></i>
       </el-upload>
       <el-dialog :visible.sync="dialogVisible">
-        <img width="100%" :src="dialogImageUrl" alt />
+        <img width="100%" :src="dialogImageUrl" alt>
       </el-dialog>
     </el-form-item>
 
     <el-form-item class="must_write" label=" 经营类目">
-      <el-cascader :options="categorys"  v-model="form.category" @change="handleChangeCate"></el-cascader>
+      <el-cascader :options="categorys" v-model="form.category" @change="handleChangeCate"></el-cascader>
     </el-form-item>
 
     <el-form-item class="must_write" label="营业日">
@@ -106,7 +106,7 @@
         <i class="el-icon-plus"></i>
       </el-upload>
       <el-dialog :visible.sync="dialogVisible">
-        <img width="100%" :src="dialogImageUrl" alt />
+        <img width="100%" :src="dialogImageUrl" alt>
       </el-dialog>
     </el-form-item>
 
@@ -140,7 +140,8 @@
 <script>
 import { shopCreate, phoneCode } from "../../api/api.js";
 import { arr } from "../../common/js/workday.js";
-import { categoryjson } from "../../common/js/Category.js";
+import categoryjson from "../../common/js/Category.js";
+import {} from "../../common/js/Category.js"
 import {
   provinceAndCityData,
   regionData,
@@ -149,7 +150,7 @@ import {
   CodeToText,
   TextToCode
 } from "element-china-area-data";
-import qs from 'qs';
+import qs from "qs";
 
 export default {
   data() {
@@ -191,10 +192,10 @@ export default {
       isDisabled: false,
       worksarr: arr,
       propscity: { multiple: true },
-      options2: provinceAndCityData, //课提供服务城市
-      selectedOptions2: [],
-      options3: regionData, //所在城市
-      selectedOptions3: [],
+      optionsServiceCity: provinceAndCityData, //课提供服务城市
+      selectedOptionsServiceCity: [],
+      optionsPosCity: regionData, //所在城市
+      selectedOptionsPosCity: [],
       works: "",
       worke: "",
       startTime: "",
@@ -214,7 +215,7 @@ export default {
         tp_auth_img: "",
         owner_mail: "",
         owner_name: "",
-        category:""
+        category: []
       },
       dialogImageUrl: "",
       dialogVisible: false,
@@ -234,12 +235,12 @@ export default {
       //获取节点数据失败
       //console.log(value)
     },
-    handleChange2(value) {
+    handleChangeServiceCity(value) {
       this.selectedOptions2 = value.forEach(function(index, item) {
         return CodeToText[item[index]];
       });
     },
-    handleChange3(value) {
+    handleChangePosCity(value) {
       this.selectedOptions2 = value.forEach(function(index, item) {
         return CodeToText[item[index]];
       });
@@ -265,20 +266,19 @@ export default {
       var str = sessionStorage
         .getItem("merchantsId")
         .match(/\d+/g)
-		.join();
-	  	var params={
-			  shop_info: JSON.stringify(shop_info),
-			  merchants_id:str
-		  }
-		params = qs.stringify(params);
-		console.log(params);
+        .join();
+      var params = {
+        shop_info: JSON.stringify(shop_info),
+        merchants_id: str
+      };
+      params = qs.stringify(params);
+      console.log(params);
       shopCreate(params).then(data => {
-		console.log(params);
-		if(data.shop_id){
-			this.$router.push({path:"/submitInfoList"})
-			this.$router.push({path:"/submitInfoList"})
-		}
-		
+        console.log(params);
+        if (data.shop_id) {
+          this.$router.push({ path: "/submitInfoList" });
+          this.$router.push({ path: "/submitInfoList" });
+        }
       });
     },
     handleReset() {
