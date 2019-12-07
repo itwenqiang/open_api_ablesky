@@ -1,6 +1,6 @@
 <template>
   <el-tabs v-model="activeName" @tab-click="handleClick">
-    <el-tab-pane :disabled="sessionIs" label="商户入驻" name="first">
+    <el-tab-pane :disabled="!sessionIs" label="商户入驻" name="first">
       <el-form :model="form" label-width="110px" style="margin:20px;width:60%;min-width:600px;">
         <el-form-item class="must_write" label="商户名称:">
           <el-input v-model="form.merchants_name" placeholder="填写您的商户名称"></el-input>
@@ -122,7 +122,7 @@
       </el-form>
     </el-tab-pane>
 
-    <el-tab-pane label="审核情况" name="second">
+    <el-tab-pane :disabled="sessionIs" label="审核情况" name="second">
       <el-steps
         v-model="merchantsState.status"
         :active="Number(merchantsState.status+1)"
