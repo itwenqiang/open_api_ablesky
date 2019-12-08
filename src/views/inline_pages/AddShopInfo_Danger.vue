@@ -20,14 +20,14 @@
     </el-form-item>
 
     <el-form-item class="must_write" label=" 所在城市">
-      <el-cascader :options="optionsPosCity" @change="handleChangePosCity"></el-cascader>
+      <el-cascader :options="optionsPosCity" @change="handleChangePosCity" clearable ></el-cascader>
     </el-form-item>
 
     <el-form-item class="must_write" label="详细地址:">
       <el-input v-model="form.detail_address" placeholder="请输入详细地址"></el-input>
     </el-form-item>
     <el-form-item class="must_write" label="机构地图:">
-      <el-input v-model="form.position" placeholder="输入坐标信息"></el-input>
+      <el-input  @change="setPosVal" placeholder="输入坐标信息"></el-input>
       <span>前往</span>
       <a target="_Black" href="http://api.map.baidu.com/lbsapi/getpoint/index.html">百度地图</a>
       <span>查询店铺坐标</span>
@@ -54,10 +54,10 @@
     </el-form-item>
 
     <el-form-item class="must_write" label=" 经营类目">
-      <el-cascader :options="categorys"  @change="handleChangeCate"></el-cascader>
+      <el-cascader :options="categorys" v-model="form.category" @change="handleChangeCate" style="width:260px"></el-cascader>
     </el-form-item>
 
-    <el-form-item class="must_write" label="营业日">
+    <el-form-item class="must_write _spinx" label="营业日">
       <el-select v-model="values" placeholder="选择营业日">
         <el-option v-for="item in arr" :key="item.value" :label="item.label" :value="item.value"></el-option>
       </el-select>
@@ -67,7 +67,7 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item class="must_write" label="营业时间段">
+    <el-form-item class="must_write _spin3" label="营业时间段">
       <el-time-select
         placeholder="起始时间"
         v-model="startTime"
@@ -90,7 +90,7 @@
       ></el-time-select>
     </el-form-item>
 
-    <el-form-item class="must_write" label="合作授权协议">
+    <el-form-item class="must_write _spinxs" label="合作授权协议">
       <el-upload
         limit="1"
         :headers="headers"
@@ -113,7 +113,7 @@
       <el-input v-model="form.owner_name" placeholder="运营者姓名"></el-input>
     </el-form-item>
 
-    <el-form-item class="must_write _fixmust" label="运营者电话">
+    <el-form-item class="must_write _spin3" label="运营者电话">
       <el-row>
         <el-input style="width:80%" v-model="insertNumer.owner_phone" placeholder="运营者电话"></el-input>
 
@@ -192,20 +192,22 @@ export default {
       worksarr: arr,
       propscity: { multiple: true },
       optionsServiceCity: provinceAndCityData, //课提供服务城市
-      selectedOptionsServiceCity: [],
+      selectedOptionsServiceCity:[],
       optionsPosCity: regionData, //所在城市
-      selectedOptionsPosCity: [],
+      selectedOptionsPosCity:[],
       works: "",
       worke: "",
       startTime: "",
       endTime: "",
       categorys: categoryjson,
+      category: [],
       insertNumer: {
         owner_phone: "",
         validateCode: ""
       },
       form: {
         name: "",
+        category:"",
         detail_address: "",
         position: "",
         avatar: "",
@@ -214,7 +216,6 @@ export default {
         tp_auth_img: "",
         owner_mail: "",
         owner_name: "",
-        category: []
       },
       dialogImageUrl: "",
       dialogVisible: false,
@@ -230,6 +231,9 @@ export default {
     }
   },
   methods: {
+    setPosVal(val){
+      this.form.position=val.join("");
+    },
     handleChangeCate(value) {
       //处理数据
       let str=value.join("_")
@@ -238,30 +242,36 @@ export default {
       this.category=arr;
     },
     handleChangeServiceCity(value) {
-      this.selectedOptionsServiceCity = value.map(function(item) {
+      //服务城市 array
+      let serviceCity=value.map((item)=>{
         return CodeToText[item];
       });
+      console.log(serviceCity)
+      this.selectedOptionsServiceCity = serviceCity
     },
     handleChangePosCity(value) {
-      this.selectedOptionsPosCity = value.map(function(item) {
-        return CodeToText[item];
+      var posCity=value.map((item)=> {
+       return  CodeToText[item]
       });
+      console.log(posCity)
+      this.selectedOptionsPosCity =posCity;
+
     },
     handleSubmit() {
       let shop_info = {
         name: this.form.name,
         avatar: this.form.avatar,
-        category:this.category, //["留学_留学考试/培训_雅思"]  this.form.category
-        location: this.selectedOptionsPosCity.join(), //"北京市,北京市,昌平区"
+        category:this.category, //["留学_留学考试/培训_雅思"]  
         work_day: `${this.values}至${this.valuee}`,
         work_time: `${this.startTime}-${this.endTime}`,
         detail_address: this.form.detail_address,
         owner_name: this.form.owner_name,
-        owner_phone: this.insertNumer.owner_phone,
+        owner_phone: this.form.owner_phone,
         code: this.insertNumer.validateCode,
         owner_mail: this.form.owner_mail,
         position: this.form.position,
         service_city: this.selectedOptionsServiceCity.toString(),
+        location: this.selectedOptionsPosCity.join(),//"北京市,北京市,昌平区"
         tp_auth_img: this.form.tp_auth_img
       };
       var str = sessionStorage
@@ -274,12 +284,7 @@ export default {
       };
       params = qs.stringify(params);
       shopCreate(params).then(data => {
-
         if (data.shop_id) {
-          this.$message({
-            message:"添加成功",
-            type:"success"
-          });
           this.$router.push({ path: "/submitInfoList" });
         }
       });
@@ -344,6 +349,8 @@ export default {
         }
       }, 1000);
     }
+  },
+  mounted(){
   }
 };
 </script>
@@ -373,7 +380,10 @@ export default {
 ._spin3::before {
   margin-left: 12px;
 }
-._spin4::before {
-  margin-left: 46px;
+._spinx::before {
+  margin-left: 46px !important;
+}
+._spinxs::before {
+  margin-left: 8px !important;
 }
 </style>

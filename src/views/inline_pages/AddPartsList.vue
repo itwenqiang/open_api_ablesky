@@ -129,7 +129,7 @@ export default {
       } else {
         console.log(cur);
       }
-			sessionStorage.setItem('material_type', this.material_type);
+      sessionStorage.setItem("material_type", this.material_type);
       this.$router.push({ path: "/addPartsNew" });
     },
 
@@ -161,9 +161,9 @@ export default {
       });
     },
     handleView(index, row) {
-			sessionStorage.setItem('material_type', row.material_typeValue);
-			sessionStorage.setItem('material_data', JSON.stringify(row.data));
-      this.$router.push({ path: `/addPartsNew`});
+      sessionStorage.setItem("material_type", row.material_typeValue);
+      sessionStorage.setItem("material_data", JSON.stringify(row.data));
+      this.$router.push({ path: `/addPartsNew` });
     }
   }
 };

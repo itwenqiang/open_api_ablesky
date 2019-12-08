@@ -27,8 +27,7 @@
       <el-table-column prop="shopStatus"  label="审核状态" ></el-table-column>
       <el-table-column label="操作" >
         <template solt-scope="scope">
-          <el-button size="small">查看</el-button>
-          <el-button  size="small" >更新</el-button>
+          <el-button  size="small" @click="shopUpdate">更新</el-button>
           <el-button size="small" >删除</el-button>
         </template>
       </el-table-column>
@@ -48,6 +47,9 @@ export default {
     };
   },
   methods: {
+    shopUpdate(){
+      this.$router.push("/addShopInfoUpdate");
+    },
     handleSerchShop(){
       let str=sessionStorage.getItem("merchantsId").match(/\d+/g).join();
       let params={

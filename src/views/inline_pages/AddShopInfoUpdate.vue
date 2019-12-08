@@ -13,6 +13,7 @@
       <el-cascader
         :props="propscity"
         :options="optionsServiceCity"
+        v-model="selectedOptionsServiceCity"
         @change="handleChangeServiceCity"
         clearable
         collapse-tags
@@ -20,7 +21,7 @@
     </el-form-item>
 
     <el-form-item class="must_write" label=" 所在城市">
-      <el-cascader :options="optionsPosCity" @change="handleChangePosCity"></el-cascader>
+      <el-cascader :options="optionsPosCity" v-model="selectedOptionsPosCity" @change="handleChangePosCity"></el-cascader>
     </el-form-item>
 
     <el-form-item class="must_write" label="详细地址:">
@@ -54,7 +55,7 @@
     </el-form-item>
 
     <el-form-item class="must_write" label=" 经营类目">
-      <el-cascader :options="categorys"  @change="handleChangeCate"></el-cascader>
+      <el-cascader :options="categorys" v-model="form.category" @change="handleChangeCate"></el-cascader>
     </el-form-item>
 
     <el-form-item class="must_write" label="营业日">
@@ -186,7 +187,7 @@ export default {
           label: "周日"
         }
       ],
-      time: 60,
+      time: 20,
       buttonName: "发送短信",
       isDisabled: false,
       worksarr: arr,
@@ -231,37 +232,35 @@ export default {
   },
   methods: {
     handleChangeCate(value) {
-      //处理数据
-      let str=value.join("_")
-      let arr=[];
-      arr.push(str)
-      this.category=arr;
+      //获取节点数据失败
+      //console.log(value)
     },
     handleChangeServiceCity(value) {
-      this.selectedOptionsServiceCity = value.map(function(item) {
-        return CodeToText[item];
+      this.selectedOptions2 = value.forEach(function(index, item) {
+        return CodeToText[item[index]];
       });
     },
     handleChangePosCity(value) {
-      this.selectedOptionsPosCity = value.map(function(item) {
-        return CodeToText[item];
+      this.selectedOptions2 = value.forEach(function(index, item) {
+        return CodeToText[item[index]];
       });
     },
     handleSubmit() {
       let shop_info = {
         name: this.form.name,
         avatar: this.form.avatar,
-        category:this.category, //["留学_留学考试/培训_雅思"]  this.form.category
-        location: this.selectedOptionsPosCity.join(), //"北京市,北京市,昌平区"
+        category: ["留学_留学考试/培训_雅思"], //["留学_留学考试/培训_雅思"]  this.form.category
+        location: this.selectedOptions3, //"北京市,北京市,昌平区"
         work_day: `${this.values}至${this.valuee}`,
         work_time: `${this.startTime}-${this.endTime}`,
         detail_address: this.form.detail_address,
         owner_name: this.form.owner_name,
-        owner_phone: this.insertNumer.owner_phone,
+        owner_phone: this.form.owner_phone,
+        phone: this.insertNumer.owner_phone,
         code: this.insertNumer.validateCode,
         owner_mail: this.form.owner_mail,
         position: this.form.position,
-        service_city: this.selectedOptionsServiceCity.toString(),
+        service_city: this.selectedOptions2,
         tp_auth_img: this.form.tp_auth_img
       };
       var str = sessionStorage
@@ -273,13 +272,11 @@ export default {
         merchants_id: str
       };
       params = qs.stringify(params);
+      console.log(params);
       shopCreate(params).then(data => {
-
+        console.log(params);
         if (data.shop_id) {
-          this.$message({
-            message:"添加成功",
-            type:"success"
-          });
+          this.$router.push({ path: "/submitInfoList" });
           this.$router.push({ path: "/submitInfoList" });
         }
       });
@@ -338,7 +335,7 @@ export default {
         --me.time;
         if (me.time < 0) {
           me.buttonName = "重新发送";
-          me.time = 60;
+          me.time = 10;
           me.isDisabled = false;
           window.clearInterval(interval);
         }

@@ -24,6 +24,10 @@ export const checkMerchantState = params => {
   return axios.get(`${baseURL}/openApi/merchants_view`, { params: params });
 };
 
+export const reSubmitMerchant = params => {
+  return axios.post(`${baseURL}/openApi/merchants_update`, params);
+};
+
 export const getMerchantsInfo = params => {
   return axios
     .get(`${baseURL}/openApi/getMerchantsInfo`, { params: params })
@@ -33,6 +37,12 @@ export const getMerchantsInfo = params => {
 export const shopCreate = params => {
   return axios
     .post(`${baseURL}/openApi/shop_create`, params)
+    .then(res => res.data);
+};
+
+export const shopUpdate = params => {
+  return axios
+    .post(`${baseURL}/openApi/shop_update`, params)
     .then(res => res.data);
 };
 //查看店铺list
@@ -68,17 +78,23 @@ export const addUser = params => {
 };
 
 export const queryMaterial = params => {
-  return axios.post(`${baseURL}/openApi/material_get`, params, {
+  return axios
+    .post(`${baseURL}/openApi/material_get`, params, {
       headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+        "Content-Type": "application/x-www-form-urlencoded"
       }
-  }).then(res => res.data);
+    })
+    .then(res => res.data);
 };
 
 export const deleteMaterial = params => {
-    return axios.post(`${baseURL}/openApi/material_delete`, params).then(res => res.data);
-}
+  return axios
+    .post(`${baseURL}/openApi/material_delete`, params)
+    .then(res => res.data);
+};
 
 export const unpublishMaterial = params => {
-    return axios.post(`${baseURL}/openApi/material_unpublish`, params).then(res => res.data);
-}
+  return axios
+    .post(`${baseURL}/openApi/material_unpublish`, params)
+    .then(res => res.data);
+};

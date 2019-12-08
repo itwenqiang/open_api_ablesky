@@ -61,7 +61,6 @@ export default {
   },
   methods: {
     handleToRegister() {
-      console.log(1);
       this.$router.push({ path: "/register" });
     },
     handleLogin(ev) {
