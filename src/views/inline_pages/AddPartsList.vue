@@ -1,243 +1,173 @@
 <template>
-<!-- list -->
-	<div>
-		<section ref="flag">
-			<!--工具条-->
-			<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
-				<h4 style="margin: 0 0 8px;padding:0">筛选查询</h4>
-				<el-form :inline="true"  lable="物料ID:" :model="filters">
-					<el-form-item>
-						<el-input v-model="filters.name" placeholder="物料ID"></el-input>
-					</el-form-item>
-					<el-select v-model="ops.ops_i" placeholder="物料类型">
-						<el-option label="店铺相册" value="店铺相册"></el-option>
-						<el-option label="教育评论" value="教育评论"></el-option>
-						<el-option label="课程物料" value="课程物料"></el-option>
-						<el-option label="预约电话" value="预约电话"></el-option>
-						<el-option label="咨询电话" value="咨询电话"></el-option>
-					</el-select>
-					<el-form-item>
-						<el-button type="info" v-on:click="getShops">查询</el-button>
-					</el-form-item>
-					<el-form-item>
-						<el-button type="primary" @click="addNewOne">新增物料</el-button>
-					</el-form-item>
-				</el-form>
-			</el-col>
+  <!-- list -->
+  <div>
+    <section>
+      <!--工具条-->
+      <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+        <h4 style="margin: 0 0 8px;padding:0">筛选查询</h4>
+        <el-form :inline="true" lable="物料ID:">
+          <el-form-item>
+            <el-input v-model="material_id" placeholder="物料ID"></el-input>
+          </el-form-item>
+          <el-select v-model="material_type" placeholder="物料类型">
+            <el-option label="店铺相册" value="10007"></el-option>
+            <el-option label="教育评论" value="10006"></el-option>
+            <el-option label="课程物料" value="10005"></el-option>
+            <el-option label="预约电话" value="30001"></el-option>
+            <el-option label="咨询电话" value="30002"></el-option>
+          </el-select>
+          <el-form-item>
+            <el-button type="info" v-on:click="queryMaterialList">查询</el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="addNewOne">新增物料</el-button>
+          </el-form-item>
+        </el-form>
+      </el-col>
 
-			<!--列表-->
-			<el-table :data="users" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
-				<el-table-column type="selection" width="55">
-				</el-table-column>
-				<el-table-column prop="name" label="序号" width="100" sortable>
-				</el-table-column>
-				<el-table-column prop="sex" label="店铺ID" width="150" >
-				</el-table-column>
-				<el-table-column prop="age" label="店铺名称">
-				</el-table-column>
-				<el-table-column prop="birth" label="审核状态" width="120" >
-				</el-table-column>
-				<el-table-column label="操作">
-					<template solt-scope="scope">
-						<el-button  type="info" size="small">查看</el-button>
-						<el-button  type="primary" size="small">更新</el-button>
-						<el-button  type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-						<el-button  type="success" size="small">解绑</el-button>
+      <!--列表-->
+      <el-table
+        :data="material_list"
+        highlight-current-row
+        v-loading="listLoading"
+        style="width: 100%;"
+      >
+        <el-table-column prop="index" label="序号" sortable></el-table-column>
+        <el-table-column prop="material_id" label="物料ID"></el-table-column>
+        <el-table-column prop="material_type" label="物料类型"></el-table-column>
+        <el-table-column prop="merchants_id" label="所属商户ID"></el-table-column>
+        <el-table-column prop="shop_id" label="已绑定店铺ID"></el-table-column>
+        <el-table-column prop="status" label="审核状态"></el-table-column>
+        <el-table-column label="操作" width="300">
+          <template scope="scope">
+            <el-button type="info" size="small" @click="handleView(scope.$index, scope.row)">查看</el-button>
+            <el-button type="primary" size="small">更新</el-button>
+            <el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+            <el-button
+              type="success"
+              :disabled="scope.row.pulishStatus"
+              size="small"
+              @click="handleUnpublish(scope.$index, scope.row)"
+            >绑定</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-					</template>
-				</el-table-column>
-			</el-table>
-
-			<!--工具条-->
-			<el-col :span="24" class="toolbar">
-				<el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
-				</el-pagination>
-			</el-col>
-
-
-		</section>
-	</div>
-	
+      <!--工具条-->
+      <el-col :span="24" class="toolbar">
+        <el-pagination
+          layout="prev, pager, next"
+          @current-change="handleCurrentChange"
+          :page-size="total"
+          style="float:right;"
+        ></el-pagination>
+      </el-col>
+    </section>
+  </div>
 </template>
 
 <script>
-	import util from '../../common/js/util';
-	//import NProgress from 'nprogress'
-	import {checkShopState, removeUser, batchRemoveUser, editUser, addUser } from '../../api/api';
+import util from "../../common/js/util";
+import qs from "qs";
+import materialType from "../../common/js/materialType.js";
+import auditStatus from "../../common/js/AuditStatus.js";
+import {
+  queryMaterial,
+  deleteMaterial,
+  unpublishMaterial
+} from "../../api/api";
 
-	export default {
-		data() {
-			return {
-				flag:'',
-				ops:{
-					ops_i:'店铺相册'
-				},
-				filters: {
-					name: ''
-				},
-				users: [],
-				total: 0,
-				page: 1,
-				listLoading: false,
-				sels: [],//列表选中列
+export default {
+  data() {
+    return {
+      material_type: "10007",
+      material_id: "",
+      material_list: [],
+      total: 10,
+      page: 0,
+      listLoading: false
+    };
+  },
+  mounted() {
+    this.getMaterialData();
+  },
+  methods: {
+    queryMaterialList() {
+      this.getMaterialData();
+    },
+    getMaterialData() {
+      const mid = sessionStorage
+        .getItem("merchantsId")
+        .match(/\d+/)
+        .join("");
+      let params = {
+        merchants_id: mid,
+        shop_id: "",
+        material_type: this.material_type,
+        material_id: this.material_id,
+        page_size: this.total,
+        index: this.page
+      };
+      queryMaterial(qs.stringify(params)).then(res => {
+        let { material } = res;
+        console.log(res);
+        material = material.map((item, index) => {
+          item.index = index + 1;
+          item.material_typeValue = item.material_type;
+          item.material_type = materialType[item.material_type];
+          item.status = auditStatus[item.status];
+          item.pulishStatus = !!item.shop_id;
+          return item;
+        });
+        this.material_list = material;
+      });
+    },
+    addNewOne() {
+      let cur = this.$router.history.current.fullPath;
+      if (cur === "/addPartsNew") {
+        console.log(cur);
+      } else {
+        console.log(cur);
+      }
+			sessionStorage.setItem('material_type', this.material_type);
+      this.$router.push({ path: "/addPartsNew" });
+    },
 
-				editFormVisible: false,//编辑界面是否显示
-				editLoading: false,
-				editFormRules: {
-					name: [
-						{ required: true, message: '请输入', trigger: 'blur' }
-					]
-				}
-			}
-		},
-		methods: {
-			addNewOne(){
-				let cur=this.$router.history.current.fullPath;
-				  if(cur==="/addPartsNew"){
-					  console.log(cur)
-				  }else{
-					  console.log(cur)
-				  }
-				this.$router.push({path:'/addPartsNew'});
-			},
-
-			handleCurrentChange(val) {
-				this.page = val;
-				this.getShops();
-			},
-			//获取用户列表
-			getShops() {
-				let para = {
-					page: this.page,
-					name: this.filters.name
-				};
-				this.listLoading = true;
-				//NProgress.start();
-				checkShopState(para).then((res) => {
-					this.total = res.data.total;
-					this.users = res.data.users;
-					this.listLoading = false;
-					//NProgress.done();
-				});
-			},
-			//删除
-			handleDel: function (index, row) {
-				this.$confirm('确认删除该记录吗?', '提示', {
-					type: 'warning'
-				}).then(() => {
-					this.listLoading = true;
-					//NProgress.start();
-					let para = { id: row.id };
-					removeUser(para).then((res) => {
-						this.listLoading = false;
-						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getShops();
-					});
-				}).catch(() => {
-
-				});
-			},
-			//显示编辑界面
-			handleEdit: function (index, row) {
-				this.editFormVisible = true;
-				this.editForm = Object.assign({}, row);
-			},
-			//显示新增界面
-			handleAdd: function () {
-				this.addFormVisible = true;
-				this.addForm = {
-					name: '',
-					sex: -1,
-					age: 0,
-					birth: '',
-					addr: ''
-				};
-			},
-			//编辑
-			editSubmit: function () {
-				this.$refs.editForm.validate((valid) => {
-					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.editLoading = true;
-							//NProgress.start();
-							let para = Object.assign({}, this.editForm);
-							para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							editUser(para).then((res) => {
-								this.editLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['editForm'].resetFields();
-								this.editFormVisible = false;
-								this.getShops();
-							});
-						});
-					}
-				});
-			},
-			//新增
-			addSubmit: function () {
-				this.$refs.addForm.validate((valid) => {
-					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.addLoading = true;
-							//NProgress.start();
-							let para = Object.assign({}, this.addForm);
-							para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							addUser(para).then((res) => {
-								this.addLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
-								this.addFormVisible = false;
-								this.getShops();
-							});
-						});
-					}
-				});
-			},
-			selsChange: function (sels) {
-				this.sels = sels;
-			},
-			//批量删除
-			batchRemove: function () {
-				var ids = this.sels.map(item => item.id).toString();
-				this.$confirm('确认删除选中记录吗？', '提示', {
-					type: 'warning'
-				}).then(() => {
-					this.listLoading = true;
-					//NProgress.start();
-					let para = { ids: ids };
-					batchRemoveUser(para).then((res) => {
-						this.listLoading = false;
-						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getShops();
-					});
-				}).catch(() => {
-
-				});
-			}
-		},
-		mounted() {
-			this.getShops();
-		}
-	}
-
+    handleCurrentChange(val) {
+      this.page = val;
+    },
+    handleDel: function(index, row) {
+      let params = {
+        merchants_id: row.merchants_id,
+        shop_id: row.shop_id,
+        material_type: row.material_typeValue,
+        material_id: row.material_id
+      };
+      deleteMaterial(qs.stringify(params)).then(res => {
+        if (res.delete === "success") {
+          this.material_list.splice(index, 1);
+        }
+      });
+    },
+    handleUnpublish: function(index, row) {
+      let params = {
+        merchants_id: row.merchants_id,
+        id: row.shop_id || row.merchants_id || "",
+        material_id: row.material_id
+      };
+      console.log(params);
+      unpublishMaterial(qs.stringify(params)).then(res => {
+        console.log(res);
+      });
+    },
+    handleView(index, row) {
+			sessionStorage.setItem('material_type', row.material_typeValue);
+			sessionStorage.setItem('material_data', JSON.stringify(row.data));
+      this.$router.push({ path: `/addPartsNew`});
+    }
+  }
+};
 </script>
 
 <style scoped>
-
 </style>
